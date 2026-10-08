@@ -1,6 +1,6 @@
 # Bulk Certificate Generator
 
-A simple, production-shaped REST API that generates **one PDF certificate per recipient** from a single bulk request. Submit a job with many recipients, track its progress, and download the generated certificates — one failed recipient never stops the rest.
+A simple, internship-ready REST API that generates **one PDF certificate per recipient** from a single bulk request. Submit a job with many recipients, track its progress, and download the generated certificates — one failed recipient never stops the rest.
 
 Built as an internship coding assignment with an emphasis on **clean code, maintainability, simplicity and explainability**.
 
@@ -38,7 +38,7 @@ The **Bulk Certificate Generator** accepts one job containing many recipients, v
 
 ## 2. Features
 
-- **Bulk requests** — one job, up to 500 recipients in a single API call
+- **Bulk requests** — one job with many recipients in a single API call
 - **Strict input validation** — empty names, invalid e-mails, duplicate recipients and malformed dates are rejected with clear `422` errors *before* anything is persisted
 - **One predefined certificate template** — clean, professional, landscape A4 design (no template editor)
 - **Background processing** — FastAPI `BackgroundTasks`; the request returns in milliseconds
@@ -463,7 +463,7 @@ POST /api/jobs
 - **Easy to test** — `TestClient` executes background tasks synchronously before returning, giving fully deterministic tests.
 - **Honest trade-off** — tasks live in the web process: if the server restarts mid-job, the job stays `PROCESSING`. For this assignment that is acceptable; in production you would move to a real queue (see Future Scope).
 
-**Why not Celery/Redis?** Both are explicitly disallowed, require extra services/infrastructure, and would make the submission harder to run and explain for no practical gain at this scale.
+**Why not Celery/Redis?** They would add additional infrastructure and complexity that isn't necessary for this assignment's scope.
 
 ---
 
