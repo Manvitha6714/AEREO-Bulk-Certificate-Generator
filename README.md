@@ -77,6 +77,15 @@ flowchart TB
     classDef bg fill:#FFFAF0,stroke:#DD6B20,stroke-width:2px,color:#2D3748,rx:6px,ry:6px;
     classDef storage fill:#EDF2F7,stroke:#4A5568,stroke-width:2px,color:#1A202C,rx:6px,ry:6px;
 
+```mermaid
+flowchart TB
+    %% Styling and Theme Rules
+    classDef client fill:#EBF3FE,stroke:#2B6CB0,stroke-width:2px,color:#1A365D,rx:6px,ry:6px;
+    classDef api fill:#E6FFFA,stroke:#234E52,stroke-width:2px,color:#1A202C,rx:6px,ry:6px;
+    classDef service fill:#FAF5FF,stroke:#553C9E,stroke-width:2px,color:#2D3748,rx:6px,ry:6px;
+    classDef bg fill:#FFFAF0,stroke:#DD6B20,stroke-width:2px,color:#2D3748,rx:6px,ry:6px;
+    classDef storage fill:#EDF2F7,stroke:#4A5568,stroke-width:2px,color:#1A202C,rx:6px,ry:6px;
+
     %% Title Block
     subgraph SystemArchitecture ["Bulk Certificate Generator — System Architecture"]
         style SystemArchitecture fill:#FFFFFF,stroke:#CBD5E0,stroke-width:2px,color:#2D3748;
