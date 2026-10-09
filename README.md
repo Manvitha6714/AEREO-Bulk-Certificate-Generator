@@ -74,40 +74,24 @@ The application follows a three-layer architecture with background processing an
 
 ```mermaid
 flowchart TB
-    Client["API Client<br/>Swagger UI / Postman"]
-    API["FastAPI API Layer<br/>app/main.py<br/>app/api/jobs.py<br/>app/api/certificates.py"]
-    Validation["Pydantic Schemas<br/>Request Validation"]
-    JobService["Job Service<br/>app/services/job_service.py"]
-    PDFService["PDF Service<br/>ReportLab PDF Generation"]
-    Background["FastAPI BackgroundTasks<br/>Process recipients individually"]
-    DB[("SQLite Database<br/>Jobs, recipients, statuses, counters")]
-    Files[("PDF File Storage<br/>storage/certificates/")]
+    C["Client<br/>Swagger UI / Postman"]
+    A["FastAPI API Layer<br/>Jobs & Certificates"]
+    V["Pydantic Validation"]
+    S["Service Layer<br/>Job Processing & ReportLab"]
+    B["BackgroundTasks<br/>Process Each Recipient"]
+    D[("SQLite Database<br/>Jobs & Status")]
+    F[("PDF Storage<br/>Generated Certificates")]
 
-    Client -->|"1. Submit bulk JSON request"| API
-    API -->|"2. Validate request"| Validation
-    Validation -->|"3. Valid request"| JobService
-    JobService -->|"4. Save job and recipient records"| DB
-    API -.->|"5. Trigger background processing"| Background
-    Background -->|"6. Process each recipient"| JobService
-    JobService -->|"7. Generate certificate"| PDFService
-    PDFService -->|"8. Save generated PDF"| Files
-    JobService -->|"9. Update job and certificate status"| DB
-    Client -->|"10. Check status / list certificates"| API
-    API -->|"11. Read job and certificate data"| DB
-    Client -->|"12. Request certificate download"| API
-    API -->|"13. Retrieve PDF"| Files
-
-    classDef client fill:#EBF3FE,stroke:#2B6CB0,color:#1A365D
-    classDef api fill:#E6FFFA,stroke:#234E52,color:#1A202C
-    classDef service fill:#FAF5FF,stroke:#553C9E,color:#2D3748
-    classDef bg fill:#FFFAF0,stroke:#DD6B20,color:#2D3748
-    classDef storage fill:#EDF2F7,stroke:#4A5568,color:#1A202C
-
-    class Client client
-    class API,Validation api
-    class JobService,PDFService service
-    class Background bg
-    class DB,Files storage
+    C --> A
+    A --> V
+    V --> S
+    A -.-> B
+    B --> S
+    S --> D
+    S --> F
+    C -->|"Check status / download"| A
+    A --> D
+    A --> F
 ```
 
 **Key boundaries:**
