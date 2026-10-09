@@ -69,6 +69,79 @@ The **Bulk Certificate Generator** accepts one job containing many recipients, v
 ## 4. Architecture
 
 The application follows a **three-layer architecture** with a strict request/response contract:
+flowchart TB
+    %% Styling and Theme Rules
+    classDef client fill:#EBF3FE,stroke:#2B6CB0,stroke-width:2px,color:#1A365D,rx:6px,ry:6px;
+    classDef api fill:#E6FFFA,stroke:#234E52,stroke-width:2px,color:#1A202C,rx:6px,ry:6px;
+    classDef service fill:#FAF5FF,stroke:#553C9E,stroke-width:2px,color:#2D3748,rx:6px,ry:6px;
+    classDef bg fill:#FFFAF0,stroke:#DD6B20,stroke-width:2px,color:#2D3748,rx:6px,ry:6px;
+    classDef storage fill:#EDF2F7,stroke:#4A5568,stroke-width:2px,color:#1A202C,rx:6px,ry:6px;
+
+    %% Title Block
+    subgraph SystemArchitecture ["Bulk Certificate Generator — System Architecture"]
+        style SystemArchitecture fill:#FFFFFF,stroke:#CBD5E0,stroke-width:2px,color:#2D3748;
+
+        %% Client / API Consumer Layer
+        subgraph LayerClient ["1. Client / API Consumer Layer"]
+            style LayerClient fill:#F7FAFC,stroke:#E2E8F0;
+            Client["<b>API Client</b><br/>• Swagger UI<br/>• Postman<br/>• HTTP Clients"]:::client
+        end
+
+        %% API Layer
+        subgraph LayerAPI ["2. API Layer — FastAPI"]
+            style LayerAPI fill:#F7FAFC,stroke:#E2E8F0;
+            API_Jobs["<b>Jobs Endpoint</b><br/>app/api/jobs.py"]:::api
+            API_Certs["<b>Certificates Endpoint</b><br/>app/api/certificates.py"]:::api
+            Pydantic["<b>Pydantic Schemas</b><br/>Request Validation"]:::api
+        end
+
+        %% Service Layer
+        subgraph LayerService ["3. Service Layer — Business Logic"]
+            style LayerService fill:#F7FAFC,stroke:#E2E8F0;
+            JobService["<b>Job Service</b><br/>app/services/job_service.py<br/>• Job lifecycle management<br/>• Status & progress updates"]:::service
+            PDFService["<b>PDF Service</b><br/>app/services/pdf_service.py<br/>• ReportLab integration"]:::service
+        end
+
+        %% Background Task Processing Layer
+        subgraph LayerBG ["4. Background Task Processing"]
+            style LayerBG fill:#F7FAFC,stroke:#E2E8F0;
+            BGTasks["<b>FastAPI BackgroundTasks</b><br/>• Per-recipient async processing<br/>• Independent failure handling"]:::bg
+        end
+
+        %% Storage Layer
+        subgraph LayerStorage ["5. Storage Layer"]
+            style LayerStorage fill:#F7FAFC,stroke:#E2E8F0;
+            SQLite[("<b>SQLite Database</b><br/>• Job metadata<br/>• Recipient & Certificate records<br/>• Counts, status & timestamps")]:::storage
+            FileStore[("<b>File Storage</b><br/>storage/certificates/<br/>• Generated PDF Files")]:::storage
+        end
+    end
+
+    %% Workflow / Data Flow Connections
+
+    %% 1 & 2: Submits & Validates
+    Client -->|"1. Submit bulk job request (JSON)"| API_Jobs
+    API_Jobs -->|"2. Validate payload"| Pydantic
+
+    %% 3: DB Record Creation
+    API_Jobs -->|"3. Create initial job & recipient records"| SQLite
+
+    %% 4: Return HTTP 202
+    API_Jobs -->|"4. Return Job ID & HTTP 202 Accepted"| Client
+
+    %% 5 & 6: Trigger & Execute Background Tasks
+    API_Jobs -.->"5. Trigger background process"| BGTasks
+    BGTasks -->|"6. Process each recipient individually"| JobService
+    JobService -->|"7. Render PDF via ReportLab"| PDFService
+
+    %% 7 & 8: File saving and DB updates
+    PDFService -->|"8. Save PDF file"| FileStore
+    JobService -->|"9. Update status (COMPLETED/FAILED) & progress"| SQLite
+
+    %% 9 & 10: Client Status Check & Download
+    Client -->|"10. Poll status / list certificates"| API_Certs
+    API_Certs -->|"11. Query job & certificate data"| SQLite
+    Client -->|"12. Request PDF download"| API_Certs
+    API_Certs -->|"13. Retrieve PDF file"| FileStore
 
 ```
             HTTP (JSON)
