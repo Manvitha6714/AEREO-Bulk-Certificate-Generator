@@ -68,7 +68,6 @@ The **Bulk Certificate Generator** accepts one job containing many recipients, v
 
 ## 4. Architecture
 
-## 4. Architecture
 
 The application follows a three-layer architecture with background processing and persistent storage.
 
